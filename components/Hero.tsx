@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 const HeroSection = () => {
 
-    const imageRef: any = useRef();
+    const imageRef: any = useRef(null);
 
     useEffect(() => {
         const imageElement: any = imageRef.current;
