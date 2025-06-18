@@ -1,6 +1,8 @@
 import { getAccountWithTransactions } from '@/actions/accounts'
 import { notFound } from 'next/navigation';
-import React from 'react'
+import React, { Suspense } from 'react'
+import TransactionTable from '../_components/TransactionTable';
+import LoadingFallback from '@/components/LoadingFallback';
 
 const page = async ({ params }: { params: {id: string} }) => {
   const { id } = await params;
@@ -11,24 +13,29 @@ const page = async ({ params }: { params: {id: string} }) => {
     notFound();
   }
 
-  const { transaction, ...account } = accountData;
+  const { transactions, ...account } = accountData;
   return (
-    <div className='space-y-8 px-5 flex gap-4 items-end justify-between'>
-      <div>
-        <h1 className='text-5xl sm:text-6xl font-bold capitalize bg-gradient-to-br from-orange-400 to-orange-600 tracking-tighter pr-2 text-transparent bg-clip-text'>{account.name}</h1>
-        <p className='text-muted-foreground'>{account.type.charAt(0) + account.type.slice(1).toLowerCase()} Account</p>
-      </div>
-
-      <div className='text-right pb-2'>
-        <div className='text-xl sm:text-2xl font-bold'>
-          {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(account.balance)}
+    <div className='space-y-8 px-5'>
+      <div className='flex gap-4 items-end justify-between'>
+        <div>
+          <h1 className='text-5xl sm:text-6xl font-bold capitalize bg-gradient-to-br from-orange-400 to-orange-600 tracking-tighter pr-2 text-transparent bg-clip-text'>{account.name}</h1>
+          <p className='text-muted-foreground'>{account.type.charAt(0) + account.type.slice(1).toLowerCase()} Account</p>
         </div>
-        <p className='text-sm text-muted-foreground'>{account._count.transactions} Transactions</p>
+
+        <div className='text-right pb-2'>
+          <div className='text-xl sm:text-2xl font-bold'>
+            {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(account.balance)}
+          </div>
+          <p className='text-sm text-muted-foreground'>{account._count.transactions} Transactions</p>
+        </div>
       </div>
 
       {/* Chart Section */}
 
       {/* Transaction Table */}
+      <Suspense fallback={<LoadingFallback />}>
+        <TransactionTable transactions={transactions} />
+      </Suspense>
     </div>
   )
 }
