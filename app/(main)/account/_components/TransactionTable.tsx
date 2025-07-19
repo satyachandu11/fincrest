@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -25,7 +26,19 @@ const RECURRING_INTERVALS: any = {
     YEARLY: 'Yearly',
 }
 
-const TransactionTable = ({ transactions }: { transactions: { id: string; date: string; description: string; category: any; amount: number; isRecurring: boolean; type: string }[] }) => {
+const TransactionTable = ({
+    transactions,
+    totalTransactions,
+    page,
+    pageSize,
+    onPageChange
+}: {
+    transactions: any[],
+    totalTransactions: number,
+    page: number,
+    pageSize: number,
+    onPageChange: (page: number) => void
+}) => {
 
     const router = useRouter();
 
@@ -146,6 +159,9 @@ const TransactionTable = ({ transactions }: { transactions: { id: string; date: 
 
     const findRecurringTransaction = transactions.find((transaction) => transaction.isRecurring === true);
     // console.log('Recurring Transaction: ', findRecurringTransaction);
+
+    // Pagination controls
+    const totalPages = Math.ceil(totalTransactions / pageSize);
 
     return (
         <div className='space-y-4'>
@@ -314,7 +330,7 @@ const TransactionTable = ({ transactions }: { transactions: { id: string; date: 
                                                 <DropdownMenuItem
                                                     className='cursor-pointer'
                                                     onClick={() =>
-                                                        router.push(`/transactions/create?edit=${transaction.id}`)
+                                                        router.push(`/transaction/create?edit=${transaction.id}`)
                                                     }>
                                                     <Edit className='h-4 w-2' />
                                                     Edit
@@ -337,6 +353,50 @@ const TransactionTable = ({ transactions }: { transactions: { id: string; date: 
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Pagination Controls */}
+            { totalPages > 1 && (
+                <div>
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    href="#"
+                                    onClick={e => {
+                                        e.preventDefault();
+                                        if (page > 1) onPageChange(page - 1);
+                                    }}
+                                    aria-disabled={page === 1}
+                                />
+                            </PaginationItem>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <PaginationItem key={i + 1}>
+                                    <PaginationLink
+                                        href="#"
+                                        isActive={page === i + 1}
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            if (page !== i + 1) onPageChange(i + 1);
+                                        }}
+                                >
+                                    {i + 1}
+                                </PaginationLink>
+                            </PaginationItem>
+                            ))}
+                            <PaginationItem>
+                                <PaginationNext
+                                    href="#"
+                                    onClick={e => {
+                                        e.preventDefault();
+                                        if (page < totalPages) onPageChange(page + 1);
+                                    }}
+                                    aria-disabled={page === totalPages}
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                </div>
+            )}
 
         </div>
     )

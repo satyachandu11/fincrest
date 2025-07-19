@@ -54,7 +54,7 @@ export async function updateDefaultAccount(accountId) {
     }
 }
 
-export async function getAccountWithTransactions(accountId) {
+export async function getAccountWithTransactions(accountId, page = 1, pageSize = 10) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
@@ -66,25 +66,38 @@ export async function getAccountWithTransactions(accountId) {
         throw new Error('User not found');
     }
 
-    const account = await db.account.findUnique({
-        where: {id: accountId, userId: user.id},
-        include: {
-            transactions: {
-                orderBy: { date: 'desc' },
-            },
-            _count: {
-                select: {
-                    transactions: true
+    const skip = (page - 1) * pageSize;
+
+    const [account, total] = await Promise.all([
+        db.account.findUnique({
+            where: {id: accountId, userId: user.id},
+            include: {
+                transactions: {
+                    orderBy: { date: 'desc' },
+                    skip,
+                    take: pageSize,
+                },
+                _count: {
+                    select: {
+                        transactions: true
+                    }
                 }
             }
-        }
-    })
+        }),
+        db.transaction.count({
+            where: { accountId, userId: user.id }
+        })
+    ]);
 
     if(!account) return null;
 
     return {
         ...serializeTransaction(account),
-        transactions: account.transactions.map(serializeTransaction)
+        transactions: account.transactions.map(serializeTransaction),
+        totalTransactions: total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize)
     }
 }
 

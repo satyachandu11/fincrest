@@ -32,4 +32,24 @@ const eslintConfig = [
   },
 ];
 
-export default eslintConfig;
+export default {
+  root: true,
+  parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint", "react", "react-hooks"],
+  extends: [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+  ],
+  rules: {
+    // Customize or add rules here
+    "react/react-in-jsx-scope": "off", // Not needed for Next.js
+    "@typescript-eslint/no-unused-vars": "warn",
+  },
+  settings: {
+    react: {
+      version: "detect",
+    },
+  },
+};

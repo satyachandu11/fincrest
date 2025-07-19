@@ -1,8 +1,9 @@
 import { getAccountWithTransactions } from '@/actions/accounts'
 import { notFound } from 'next/navigation';
 import React, { Suspense } from 'react'
-import TransactionTable from '../_components/TransactionTable';
+import TransactionTableClient from '../_components/TransactionTableClient'
 import LoadingFallback from '@/components/LoadingFallback';
+import AccountChart from '../_components/AccountChart';
 
 const page = async ({ params }: { params: {id: string} }) => {
   const { id } = await params;
@@ -31,10 +32,13 @@ const page = async ({ params }: { params: {id: string} }) => {
       </div>
 
       {/* Chart Section */}
+      <Suspense fallback={<LoadingFallback />}>
+        <AccountChart transactions={transactions} />
+      </Suspense>
 
       {/* Transaction Table */}
       <Suspense fallback={<LoadingFallback />}>
-        <TransactionTable transactions={transactions} />
+        <TransactionTableClient accountId={id} />
       </Suspense>
     </div>
   )

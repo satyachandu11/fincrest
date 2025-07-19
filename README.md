@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Fincrest #A Smart AI Budget Tracker
 
 ## Getting Started
 
@@ -13,6 +13,9 @@ pnpm dev
 # or
 bun dev
 ```
+After npm run dev, you have to run Inngest - npx inngest-cli@latest dev (it will be run on this port - (http://localhost:8288))
+
+To see Email Template run this - npm run email.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
