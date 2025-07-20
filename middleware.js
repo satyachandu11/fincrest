@@ -7,21 +7,21 @@ const isProtectedRoute = createRouteMatcher([
     "/transaction(.*)",
 ])
 
-export const aj = arcjet({
-  key: process.env.ARCJET_KEY,
-  rules: [
-    shield({
-      mode: 'LIVE'
-    }),
-    detectBot({
-      mode: 'LIVE',
-      allow: [
-        'CATEGORY:SEARCH_ENGINE',
-        'GO_HTTP'
-      ]
-    })
-  ]
-})
+// export const aj = arcjet({
+//   key: process.env.ARCJET_KEY,
+//   rules: [
+//     shield({
+//       mode: 'LIVE'
+//     }),
+//     detectBot({
+//       mode: 'LIVE',
+//       allow: [
+//         'CATEGORY:SEARCH_ENGINE',
+//         'GO_HTTP'
+//       ]
+//     })
+//   ]
+// })
 
 
 export default clerkMiddleware(async(auth, req)=>{

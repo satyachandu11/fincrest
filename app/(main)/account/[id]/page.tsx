@@ -5,8 +5,8 @@ import TransactionTableClient from '../_components/TransactionTableClient'
 import LoadingFallback from '@/components/LoadingFallback';
 import AccountChart from '../_components/AccountChart';
 
-const page = async ({ params }: { params: {id: string} }) => {
-  const { id } = await params;
+const page = async ({ params }: any) => {
+  const { id } = params;
   const accountData = await getAccountWithTransactions(id);
   console.log('Account Data: ', accountData);
 

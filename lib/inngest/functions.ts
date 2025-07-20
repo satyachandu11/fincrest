@@ -291,42 +291,45 @@ export const generateMonthlyReports = inngest.createFunction({
 );
 
 async function generateFinancialInsights(stats: any, month: any) {
-  const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAi.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-  const prompt = `
-    Analyze this financial data and provide 3 concise, actionable insights.
-    Focus on spending patterns and practical advice.
-    Keep it friendly and conversational.
-
-    Financial Data for ${month}:
-    - Total Income: $${stats.totalIncome}
-    - Total Expenses: $${stats.totalExpenses}
-    - Net Income: $${stats.totalIncome - stats.totalExpenses}
-    - Expense Categories: ${Object.entries(stats.byCategory)
-      .map(([category, amount]) => `${category}: $${amount}`)
-      .join(", ")}
-
-    Format the response as a JSON array of strings, like this:
-    ["insight 1", "insight 2", "insight 3"]
-  `;
-
-  try {
-    const result = await model.generateContent(prompt);
-
-    const response = await result.response;
-    const text = response.text();
-    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
-
-    return JSON.parse(cleanedText);
-  } catch (error) {
-    console.error("Error generating insights: ", error);
-    return [
-      "Your highest expense category this month might need attention.",
-      "Consider setting up a budget for better financial management.",
-      "Track your recurring expenses to identify potential savings.",
-    ]
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (apiKey){
+    const genAi = new GoogleGenerativeAI(apiKey);
+    const model = genAi.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const prompt = `
+      Analyze this financial data and provide 3 concise, actionable insights.
+      Focus on spending patterns and practical advice.
+      Keep it friendly and conversational.
+  
+      Financial Data for ${month}:
+      - Total Income: $${stats.totalIncome}
+      - Total Expenses: $${stats.totalExpenses}
+      - Net Income: $${stats.totalIncome - stats.totalExpenses}
+      - Expense Categories: ${Object.entries(stats.byCategory)
+        .map(([category, amount]) => `${category}: $${amount}`)
+        .join(", ")}
+  
+      Format the response as a JSON array of strings, like this:
+      ["insight 1", "insight 2", "insight 3"]
+    `;
+  
+    try {
+      const result = await model.generateContent(prompt);
+  
+      const response = await result.response;
+      const text = response.text();
+      const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+  
+      return JSON.parse(cleanedText);
+    } catch (error) {
+      console.error("Error generating insights: ", error);
+      return [
+        "Your highest expense category this month might need attention.",
+        "Consider setting up a budget for better financial management.",
+        "Track your recurring expenses to identify potential savings.",
+      ]
+    }
   }
+
 }
 
 

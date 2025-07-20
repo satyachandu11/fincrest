@@ -10,7 +10,7 @@ import { Check, Pencil, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 
-const BudgetProgress = ({ initialBudget, currentExpenses }) => {
+const BudgetProgress = ({ initialBudget, currentExpenses }: any) => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [newBudget, setNewBudget] = useState(initialBudget?.amount?.toString() || "");

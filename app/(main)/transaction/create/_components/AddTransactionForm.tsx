@@ -146,7 +146,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
 
                 {
                     errors.type && (
-                        <p className='text-red-500 text-sm'>{errors.type.message}</p>
+                        <p className='text-red-500 text-sm'>{String(errors.type.message)}</p>
                     )
                 }
             </div>
@@ -163,7 +163,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
 
                     {
                         errors.amount && (
-                            <p className='text-red-500 text-sm'>{errors.amount.message}</p>
+                            <p className='text-red-500 text-sm'>{String(errors.amount.message)}</p>
                         )
                     }
                 </div>
@@ -198,7 +198,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
 
                     {
                         errors.accountId && (
-                            <p className='text-red-500 text-sm'>{errors.accountId.message}</p>
+                            <p className='text-red-500 text-sm'>{String(errors.accountId.message)}</p>
                         )
                     }
                 </div>
@@ -226,7 +226,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
                 {
                     errors.category && (
                         <p className='text-red-500 text-sm'>
-                            {errors.category.message === 'Required' ? 'Category is required' : errors.category.message}
+                            {String(errors.category.message) === 'Required' ? 'Category is required' : String(errors.category.message)}
                         </p>
                     )
                 }
@@ -254,7 +254,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
 
                 {
                     errors.date && (
-                        <p className='text-red-500 text-sm'>{errors.date.message}</p>
+                        <p className='text-red-500 text-sm'>{String(errors.date.message)}</p>
                     )
                 }
             </div>
@@ -265,7 +265,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
 
                 {
                     errors.description && (
-                        <p className='text-red-500 text-sm'>{errors.description.message}</p>
+                        <p className='text-red-500 text-sm'>{String(errors.description.message)}</p>
                     )
                 }
             </div>
@@ -301,7 +301,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
 
                     {
                         errors.recurringInterval && (
-                            <p className='text-red-500 text-sm'>{errors.recurringInterval.message}</p>
+                            <p className='text-red-500 text-sm'>{String(errors.recurringInterval.message)}</p>
                         )
                     }
                 </div>
