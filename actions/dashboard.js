@@ -118,3 +118,19 @@ export async function getDashboardData() {
 
     return transactions.map(serializeTransaction);
 }
+
+export async function getUserName() {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+        where: { clerkUserId: userId }
+    })
+
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    // Return the user's name
+    return user.name || "User";
+}
