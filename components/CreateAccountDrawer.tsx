@@ -9,13 +9,14 @@ import { accountSchema } from '@/app/lib/schema';
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Switch } from './ui/switch';
-import { createAccount } from '@/actions/dashboard';
+import { createAccount, getUserAccounts } from '@/actions/dashboard';
 import { Loader2 } from 'lucide-react';
 import useFetch from '@/hooks/useFetch';
 import { toast } from 'sonner';
 
-const CreateAccountDrawer = ({ children }: any) => {
+const CreateAccountDrawer = ({ children, onAccountCreated }: any) => {
     const [open, setOpen] = useState<any>(false);
+    const [hasCreated, setHasCreated] = useState(false);
 
     const {
         register,
@@ -42,12 +43,15 @@ const CreateAccountDrawer = ({ children }: any) => {
     } = useFetch(createAccount)
 
     useEffect(() => {
-        if(newAccount && !createAccountLoading) {
+        if(newAccount && !createAccountLoading && !hasCreated) {
             toast.success('Account created successfully');
             setOpen(false);
             reset();
+            setHasCreated(true);
+            // Call the callback to refresh accounts
+            onAccountCreated?.();
         }
-    }, [createAccountLoading, newAccount])
+    }, [createAccountLoading, newAccount, hasCreated, onAccountCreated])
 
     useEffect(() => {
         if (error) {
@@ -57,6 +61,7 @@ const CreateAccountDrawer = ({ children }: any) => {
 
     const onSubmit = async (data: any) => {
         console.log(data);
+        setHasCreated(false);
         await createAccountFn(data);
     }
 
