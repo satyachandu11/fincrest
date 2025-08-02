@@ -1,12 +1,11 @@
 import { getDashboardData, getUserAccounts } from '@/actions/dashboard';
-import CreateAccountDrawer from '@/components/CreateAccountDrawer';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChartPieIcon, Plus, Sparkles, Wand } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import React, { Suspense } from 'react'
-import AccountCard from './_components/AccountCard';
 import { generateBudgetSummary, getCurrentBudget } from '@/actions/budget';
 import BudgetProgress from './_components/BudgetProgress';
 import DashboardOverview from './_components/DashboardOverview';
+import AccountsGrid from './_components/AccountsGrid';
 
 const DashboardPage = async () => {
   const accounts = await getUserAccounts();
@@ -58,20 +57,7 @@ const DashboardPage = async () => {
         </Suspense>
 
         {/* Accounts Grid */}
-        <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-          <CreateAccountDrawer>
-            <Card className='hover:shadow-md transition-shadow cursor-pointer border-dashed'>
-              <CardContent className='flex flex-col items-center justify-center text-muted-foreground h-full pt-5'>
-                <Plus className='h-10 w-10 mb-2' />
-                <p className='text-sm font-medium'>Add New Account</p>
-              </CardContent>
-            </Card>
-          </CreateAccountDrawer>
-
-          {accounts.length > 0 && accounts?.map((account: any) => {
-            return <AccountCard key={account.id} account={account} />
-          })}
-        </div>
+        <AccountsGrid accounts={accounts} />
     </div>
   )
 }

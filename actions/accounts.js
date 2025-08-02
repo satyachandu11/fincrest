@@ -157,3 +157,132 @@ export async function bulkDeleteTransactions(transactionIds) {
         return { success: false, error: error.message };
     }
 }
+
+export async function editAccountDetails(accountId, data) {
+    try {
+        const { userId } = await auth();
+        if (!userId) throw new Error("Unauthorized");
+
+        const user = await db.user.findUnique({
+            where: { clerkUserId: userId }
+        })
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Validate the account exists and belongs to the user
+        const existingAccount = await db.account.findUnique({
+            where: { 
+                id: accountId, 
+                userId: user.id 
+            }
+        });
+
+        if (!existingAccount) {
+            throw new Error('Account not found');
+        }
+
+        // Validate balance if provided
+        let balanceFloat = existingAccount.balance;
+        if (data.balance !== undefined) {
+            balanceFloat = parseFloat(data.balance);
+            if (isNaN(balanceFloat)) {
+                throw new Error('Invalid balance amount');
+            }
+        }
+
+        // Update the account
+        const updatedAccount = await db.account.update({
+            where: { 
+                id: accountId, 
+                userId: user.id 
+            },
+            data: {
+                name: data.name || existingAccount.name,
+                type: data.type || existingAccount.type,
+                balance: balanceFloat,
+            }
+        });
+
+        const serializedAccount = serializeTransaction(updatedAccount);
+        revalidatePath('/dashboard');
+        revalidatePath('/dashboard/[id]');
+
+        return { success: true, data: serializedAccount };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function deleteAccount(accountId) {
+    try {
+        const { userId } = await auth();
+        if (!userId) throw new Error("Unauthorized");
+
+        const user = await db.user.findUnique({
+            where: { clerkUserId: userId }
+        });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Check if account exists and belongs to the user
+        const existingAccount = await db.account.findUnique({
+            where: { 
+                id: accountId, 
+                userId: user.id 
+            }
+        });
+
+        if (!existingAccount) {
+            throw new Error('Account not found');
+        }
+
+        // Check if this is the default account
+        if (existingAccount.isDefault) {
+            throw new Error('Cannot delete default account. Please set another account as default first.');
+        }
+
+        // Check if account has transactions
+        const transactionCount = await db.transaction.count({
+            where: { 
+                accountId: accountId, 
+                userId: user.id 
+            }
+        });
+
+        // Delete account and all its transactions in a transaction
+        await db.$transaction(async (prisma) => {
+            // Delete all transactions for this account
+            if (transactionCount > 0) {
+                await prisma.transaction.deleteMany({
+                    where: { 
+                        accountId: accountId, 
+                        userId: user.id 
+                    }
+                });
+            }
+
+            // Delete the account
+            await prisma.account.delete({
+                where: { 
+                    id: accountId, 
+                    userId: user.id 
+                }
+            });
+        });
+
+        revalidatePath('/dashboard');
+        revalidatePath('/dashboard/[id]');
+
+        const message = transactionCount > 0 
+            ? `Account and ${transactionCount} transaction(s) deleted successfully`
+            : 'Account deleted successfully';
+
+        return { success: true, message };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
