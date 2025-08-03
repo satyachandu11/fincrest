@@ -15,14 +15,17 @@ const DashboardPage = async () => {
   console.log('Default Account: ', defaultAccount);
   let budgetData = null;
   if(defaultAccount){
-    budgetData = await getCurrentBudget(defaultAccount.id);
+    budgetData = await getCurrentBudget(defaultAccount?.id);
     console.log('Budget Data: ', budgetData);
   }
 
   const transactions = await getDashboardData();
 
-  const getAISummary = await generateBudgetSummary(defaultAccount.id);
-  console.log('AI Summary: ', getAISummary);
+  let getAISummary = null;
+  if (defaultAccount) {
+    getAISummary = await generateBudgetSummary(defaultAccount.id);
+    console.log('AI Summary: ', getAISummary);
+  }
 
   return (
     <div className='space-y-8'>
@@ -37,7 +40,7 @@ const DashboardPage = async () => {
           </div>
           <CardContent className="p-0">
             <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              {getAISummary?.summary || "No summary available"}
+              {getAISummary?.summary || "No AI summary available. Please create a default account to get personalized insights."}
             </p>
           </CardContent>
         </Card>
