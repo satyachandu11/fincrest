@@ -81,14 +81,14 @@ export default function EmailTemplate({
       title: "Your Monthly Report is Ready",
       message: "Here’s your financial summary for this month, powered by FinCrest AI Insights.",
       buttonLabel: "View Full Report",
-      buttonLink: "https://fincrest.app/dashboard",
+      buttonLink: "https://fincrest.fun/dashboard",
     },
     "budget-alert": {
       title: "Budget Alert: You're Almost There",
       message:
         "You’ve reached your budget limit for the month. Consider adjusting to avoid overspending.",
       buttonLabel: "View Budget",
-      buttonLink: "https://fincrest.app/budget",
+      buttonLink: "https://fincrest.fun/dashboard",
     },
   };
 

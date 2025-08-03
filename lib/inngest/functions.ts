@@ -301,11 +301,11 @@ async function generateFinancialInsights(stats: any, month: any) {
       Keep it friendly and conversational.
   
       Financial Data for ${month}:
-      - Total Income: $${stats.totalIncome}
-      - Total Expenses: $${stats.totalExpenses}
-      - Net Income: $${stats.totalIncome - stats.totalExpenses}
+      - Total Income: ₹${stats.totalIncome}
+      - Total Expenses: ₹${stats.totalExpenses}
+      - Net Income: ₹${stats.totalIncome - stats.totalExpenses}
       - Expense Categories: ${Object.entries(stats.byCategory)
-        .map(([category, amount]) => `${category}: $${amount}`)
+        .map(([category, amount]) => `${category}: ₹${amount}`)
         .join(", ")}
   
       Format the response as a JSON array of strings, like this:
