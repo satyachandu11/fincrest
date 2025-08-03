@@ -37,6 +37,26 @@ export const checkUser = async (): Promise<LoggedInUser | null> => {
 
     const name = `${user.firstName} ${user.lastName}`;
 
+    // Check if a user with this email already exists (in case of recreation after deletion)
+    const existingUserWithEmail = await db.user.findUnique({
+      where: {
+        email: user.emailAddresses.length > 0 ? user.emailAddresses[0].emailAddress : '',
+      },
+    });
+
+    if (existingUserWithEmail) {
+      // Update the existing user with the new clerkUserId
+      const updatedUser = await db.user.update({
+        where: { id: existingUserWithEmail.id },
+        data: {
+          clerkUserId: user.id,
+          name,
+          imageUrl: user.imageUrl,
+        },
+      });
+      return updatedUser;
+    }
+
     const newUser = await db.user.create({
       data: {
         clerkUserId: user.id,
