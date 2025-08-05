@@ -114,6 +114,11 @@ export async function bulkDeleteTransactions(transactionIds) {
             throw new Error('User not found');
         }
 
+        // Validate that all transaction IDs are provided
+        if (!transactionIds || transactionIds.length === 0) {
+            throw new Error('No transactions selected for deletion');
+        }
+
         const transactions = await db.transaction.findMany({
             where: {
                 id: { in: transactionIds },
@@ -121,8 +126,18 @@ export async function bulkDeleteTransactions(transactionIds) {
             }
         });
 
+        // Check if all requested transactions were found
+        if (transactions.length !== transactionIds.length) {
+            throw new Error('Some transactions not found or not accessible');
+        }
+
         const accountBalanceChanges = transactions.reduce((acc, transaction) => {
-            const change = transaction.type === 'EXPENSE' ? transaction.amount : -transaction.amount;
+            // When deleting a transaction, we need to reverse the balance change
+            // For EXPENSE: we originally subtracted the amount, so now we add it back
+            // For INCOME: we originally added the amount, so now we subtract it
+            // Convert Decimal to number for calculation
+            const amount = typeof transaction.amount === 'object' ? transaction.amount.toNumber() : transaction.amount;
+            const change = transaction.type === 'EXPENSE' ? amount : -amount;
 
             acc[transaction.accountId] = (acc[transaction.accountId] || 0) + change;
             return acc;
@@ -154,6 +169,7 @@ export async function bulkDeleteTransactions(transactionIds) {
 
         return { success: true, data: transactions.map(serializeTransaction) };
     } catch (error) {
+        console.error('Bulk delete transactions error:', error);
         return { success: false, error: error.message };
     }
 }

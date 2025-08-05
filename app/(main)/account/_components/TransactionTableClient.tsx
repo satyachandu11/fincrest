@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import TransactionTable from './TransactionTable'
 import LoadingFallback from '@/components/LoadingFallback'
 
@@ -9,14 +9,28 @@ export default function TransactionTableClient({ accountId }: { accountId: strin
   const [page, setPage] = useState(1)
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const fetchData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/accounts/${accountId}/transactions?page=${page}&pageSize=${PAGE_SIZE}`)
+      const data = await res.json()
+      setData(data)
+    } catch (error) {
+      console.error('Failed to fetch transactions:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [accountId, page])
 
   useEffect(() => {
-    setLoading(true)
-    fetch(`/api/accounts/${accountId}/transactions?page=${page}&pageSize=${PAGE_SIZE}`)
-      .then(res => res.json())
-      .then(setData)
-      .finally(() => setLoading(false))
-  }, [accountId, page])
+    fetchData()
+  }, [fetchData, refreshKey])
+
+  const handleRefresh = useCallback(() => {
+    setRefreshKey(prev => prev + 1)
+  }, [])
 
   if (loading || !data) return <LoadingFallback />
 
@@ -27,6 +41,7 @@ export default function TransactionTableClient({ accountId }: { accountId: strin
       page={page}
       pageSize={PAGE_SIZE}
       onPageChange={setPage}
+      onRefresh={handleRefresh}
     />
   )
 }

@@ -18,6 +18,7 @@ import { Clock, Edit, MoreHorizontal, RefreshCw, Search, Trash, X } from 'lucide
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import { ClipLoader } from 'react-spinners'
 
 const RECURRING_INTERVALS: any = {
     DAILY: 'Daily',
@@ -31,13 +32,15 @@ const TransactionTable = ({
     totalTransactions,
     page,
     pageSize,
-    onPageChange
+    onPageChange,
+    onRefresh
 }: {
     transactions: any[],
     totalTransactions: number,
     page: number,
     pageSize: number,
-    onPageChange: (page: number) => void
+    onPageChange: (page: number) => void,
+    onRefresh?: () => void
 }) => {
 
     const router = useRouter();
@@ -51,25 +54,45 @@ const TransactionTable = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [recurringFilter, setRecurringFilter] = useState('');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
-    const {
-        loading: bulkDeleteLoading,
-        fn: bulkDeleteFn,
-        data: deleted
-    } = useFetch(bulkDeleteTransactions);
+    const [bulkDeleteLoading, setBulkDeleteLoading] = useState(false);
 
     const handleBulkDelete = async () => {
-        if(!window.confirm(`Are you sure you want to delete ${selectedIds.length} transactions?`)) return;
-
-        bulkDeleteFn(selectedIds);
-        // setSelectedIds([]);
+        setShowDeleteConfirm(true);
     }
 
-    useEffect(() => {
-        if (deleted && !bulkDeleteLoading) {
-            toast.error('Transactions Deleted Successfully');
+    const confirmBulkDelete = async () => {
+        setDeleting(true);
+        setBulkDeleteLoading(true);
+        try {
+            const result: any = await bulkDeleteTransactions(selectedIds);
+            console.log('Delete result:', result); // Debug log
+            
+            if (result && result.success) {
+                toast.success(`Successfully deleted ${selectedIds.length} transaction${selectedIds.length === 1 ? '' : 's'}`);
+                setSelectedIds([]); // Clear selected IDs after successful deletion
+                setShowDeleteConfirm(false);
+                // Trigger refresh to update the data
+                if (onRefresh) {
+                    onRefresh();
+                }
+            } else {
+                toast.error(result?.error || 'Failed to delete transactions');
+                setShowDeleteConfirm(false); // Close popup on error
+            }
+        } catch (error) {
+            console.error('Delete transactions error:', error);
+            toast.error('Failed to delete transactions');
+            setShowDeleteConfirm(false); // Close popup on error
+        } finally {
+            setDeleting(false);
+            setBulkDeleteLoading(false);
         }
-    }, [deleted, bulkDeleteLoading]);
+    }
+
+
 
     const filteredandSortedTransactions = useMemo(() => {
         let result = [...transactions];
@@ -338,7 +361,22 @@ const TransactionTable = ({
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
                                                     className='text-destructive cursor-pointer'
-                                                    onClick={() => bulkDeleteFn([transaction.id])}
+                                                    onClick={async () => {
+                                                        try {
+                                                            const result = await bulkDeleteTransactions([transaction.id]);
+                                                            if (result && result.success) {
+                                                                toast.success('Transaction deleted successfully');
+                                                                if (onRefresh) {
+                                                                    onRefresh();
+                                                                }
+                                                            } else {
+                                                                toast.error(result?.error || 'Failed to delete transaction');
+                                                            }
+                                                        } catch (error) {
+                                                            console.error('Delete transaction error:', error);
+                                                            toast.error('Failed to delete transaction');
+                                                        }
+                                                    }}
                                                 >
                                                     <Trash className='h-4 w-2' />
                                                     Delete
@@ -395,6 +433,51 @@ const TransactionTable = ({
                             </PaginationItem>
                         </PaginationContent>
                     </Pagination>
+                </div>
+            )}
+
+            {/* Delete Confirmation Popup */}
+            {showDeleteConfirm && (
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20"
+                    onClick={() => setShowDeleteConfirm(false)}
+                >
+                    <div 
+                        className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-lg font-semibold mb-4">
+                            {selectedIds.length === 1 ? 'Delete Transaction' : 'Delete Transactions'}
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to delete {selectedIds.length} selected transaction{selectedIds.length === 1 ? '' : 's'}? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                variant="outline"
+                                className="flex-1"
+                                disabled={deleting}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={confirmBulkDelete}
+                                variant="destructive"
+                                className="flex-1"
+                                disabled={deleting}
+                            >
+                                {deleting ? (
+                                    <>
+                                        <ClipLoader size={16} className="mr-2" />
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    'Delete'
+                                )}
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             )}
 
