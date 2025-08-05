@@ -56,6 +56,7 @@ const TransactionTable = ({
     const [recurringFilter, setRecurringFilter] = useState('');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
 
     const [bulkDeleteLoading, setBulkDeleteLoading] = useState(false);
 
@@ -359,30 +360,19 @@ const TransactionTable = ({
                                             <DropdownMenuContent>
                                                 <DropdownMenuItem
                                                     className='cursor-pointer'
-                                                    onClick={() =>
-                                                        router.push(`/transaction/create?edit=${transaction.id}`)
-                                                    }>
+                                                    onClick={() => {
+                                                        setIsNavigating(true);
+                                                        router.push(`/transaction/create?edit=${transaction.id}`);
+                                                    }}>
                                                     <Edit className='h-4 w-2' />
                                                     Edit
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
                                                     className='text-destructive cursor-pointer'
-                                                    onClick={async () => {
-                                                        try {
-                                                            const result = await bulkDeleteTransactions([transaction.id]);
-                                                            if (result && result.success) {
-                                                                toast.success('Transaction deleted successfully');
-                                                                if (onRefresh) {
-                                                                    onRefresh();
-                                                                }
-                                                            } else {
-                                                                toast.error(result?.error || 'Failed to delete transaction');
-                                                            }
-                                                        } catch (error) {
-                                                            console.error('Delete transaction error:', error);
-                                                            toast.error('Failed to delete transaction');
-                                                        }
+                                                    onClick={() => {
+                                                        setSelectedIds([transaction.id]);
+                                                        setShowDeleteConfirm(true);
                                                     }}
                                                 >
                                                     <Trash className='h-4 w-2' />
@@ -484,6 +474,17 @@ const TransactionTable = ({
                                 )}
                             </Button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Navigation Loading Overlay */}
+            {isNavigating && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
+                    <div className="text-center space-y-4">
+                        <ClipLoader size={32} className="mx-auto" />
+                        <p className="text-lg font-medium">Loading transaction form...</p>
+                        <p className="text-sm text-muted-foreground">Please wait while we prepare the edit form.</p>
                     </div>
                 </div>
             )}
