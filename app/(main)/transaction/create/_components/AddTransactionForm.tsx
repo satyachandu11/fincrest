@@ -3,6 +3,7 @@
 import { createTransaction, updateTransaction } from '@/actions/transaction'
 import { transactionSchema } from '@/app/lib/schema'
 import CreateAccountDrawer from '@/components/CreateAccountDrawer'
+import LoadingFallback from '@/components/LoadingFallback'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
@@ -14,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { CalendarIcon, Loader2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import ReceiptScanner from './ReceiptScanner'
@@ -25,6 +26,7 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
     const router = useRouter();
     const searchParams = useSearchParams();
     const editId = searchParams.get("edit");
+    const [isNavigating, setIsNavigating] = useState(false);
 
     const {
         register,
@@ -90,6 +92,10 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
                     editMode ? 'Transaction updated successfully' :
                     'Transaction created successfully');
                 reset();
+                
+                // Show full-page loading state before navigation
+                setIsNavigating(true);
+                
                 router.push(`/account/${transactionResult.data.accountId}`);
             } else if (
                 transactionResult.error &&
@@ -101,6 +107,19 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
             }
         }
     }, [transactionResult, transactionLoading, editMode]);
+
+    // Show full-page loading if navigating after successful creation/update
+    if (isNavigating) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
+                <div className="text-center space-y-4">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+                    <p className="text-lg font-medium">Redirecting to account...</p>
+                    <p className="text-sm text-muted-foreground">Please wait while we navigate to your account page.</p>
+                </div>
+            </div>
+        );
+    }
 
     const filteredCategories = categories.filter((category: any) => category.type === type);
 
