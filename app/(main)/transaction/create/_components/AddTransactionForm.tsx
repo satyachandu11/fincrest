@@ -189,31 +189,49 @@ const AddTransactionForm = ({ accounts, categories, editMode = false, initialDat
 
                 <div className='space-y-2'>
                     <label className='text-sm font-medium'>Account</label>
-                    <Select
-                        onValueChange={(value) => setValue('accountId', value)}
-                        defaultValue={getValues('accountId')}
-                    >
-                        <SelectTrigger className='w-full'>
-                            <SelectValue placeholder="Select Account" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {accounts.map((account: any) => {
-                                return (
-                                    <SelectItem key={account.id} value={account.id}>
-                                        {account.name} ({new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(account.balance)})
-                                    </SelectItem>
-                                )
-                            })}
+                    <div className='space-y-2'>
+                        <Select
+                            onValueChange={(value) => setValue('accountId', value)}
+                            defaultValue={getValues('accountId')}
+                        >
+                            <SelectTrigger className='w-full'>
+                                <SelectValue placeholder="Select Account" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {accounts.map((account: any) => {
+                                    return (
+                                        <SelectItem key={account.id} value={account.id}>
+                                            {account.name} ({new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(account.balance)})
+                                        </SelectItem>
+                                    )
+                                })}
+                                {/* Desktop: Create Account inside dropdown */}
+                                <div className='hidden lg:block'>
+                                    <CreateAccountDrawer>
+                                        <Button
+                                            variant={'ghost'}
+                                            className='w-full select-none items-center text-sm outline-none'
+                                        >
+                                            Create Account
+                                        </Button>
+                                    </CreateAccountDrawer>
+                                </div>
+                            </SelectContent>
+                        </Select>
+
+                        {/* Mobile & Tablet: Create Account outside dropdown */}
+                        <div className='lg:hidden'>
                             <CreateAccountDrawer>
                                 <Button
-                                    variant={'ghost'}
-                                    className='w-full select-none items-center text-sm outline-none'
+                                    variant={'outline'}
+                                    size={'sm'}
+                                    className='w-full'
                                 >
-                                    Create Account
+                                    + Create New Account
                                 </Button>
                             </CreateAccountDrawer>
-                        </SelectContent>
-                    </Select>
+                        </div>
+                    </div>
 
                     {
                         errors.accountId && (
