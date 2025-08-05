@@ -192,8 +192,9 @@ const TransactionTable = ({
             {bulkDeleteLoading && <LoadingFallback />}
 
             {/* Filters */}
-            <div className='flex flex-col sm:flex-row gap-4'>
-                <div className='relative flex-1'>
+            <div className='space-y-3'>
+                {/* Search Bar */}
+                <div className='relative'>
                     <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
                     <Input
                         className='pl-8'
@@ -203,47 +204,53 @@ const TransactionTable = ({
                     />
                 </div>
 
-                <div className='flex gap-2'>
-                    <Select value={typeFilter} onValueChange={setTypeFilter}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="All Types" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="INCOME">Income</SelectItem>
-                            <SelectItem value="EXPENSE">Expense</SelectItem>
-                        </SelectContent>
-                    </Select>
+                {/* Filters and Actions Row */}
+                <div className='flex flex-col sm:flex-row gap-2'>
+                    {/* Filter Dropdowns */}
+                    <div className='flex flex-col sm:flex-row gap-2 flex-1'>
+                        <Select value={typeFilter} onValueChange={setTypeFilter}>
+                            <SelectTrigger className='w-full sm:w-auto'>
+                                <SelectValue placeholder="All Types" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="INCOME">Income</SelectItem>
+                                <SelectItem value="EXPENSE">Expense</SelectItem>
+                            </SelectContent>
+                        </Select>
 
-                    <Select value={recurringFilter} onValueChange={(value) => setRecurringFilter(value)}>
-                        <SelectTrigger className='w-[130px]'>
-                            <SelectValue placeholder="All Transactions" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="recurring">Recurring Only</SelectItem>
-                            <SelectItem value="non-recurring">Non-Recurring Only</SelectItem>
-                        </SelectContent>
-                    </Select>
+                        <Select value={recurringFilter} onValueChange={(value) => setRecurringFilter(value)}>
+                            <SelectTrigger className='w-full sm:w-[130px]'>
+                                <SelectValue placeholder="All Transactions" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="recurring">Recurring Only</SelectItem>
+                                <SelectItem value="non-recurring">Non-Recurring Only</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                    {selectedIds.length > 0 && (
-                        <div className='flex items-center gap-2'>
+                    {/* Action Buttons */}
+                    <div className='flex gap-2'>
+                        {selectedIds.length > 0 && (
                             <Button
                                 variant='destructive'
                                 size={'sm'}
                                 onClick={handleBulkDelete}
+                                className='flex-1 sm:flex-none'
                             >
                                 <Trash className='h-4 w-4 mr-2' />
-                                Delete Selected ({selectedIds.length})
+                                <span className='hidden sm:inline'>Delete Selected ({selectedIds.length})</span>
+                                <span className='sm:hidden'>Delete ({selectedIds.length})</span>
                             </Button>
-                        </div>
-                    )}
+                        )}
 
-                    {(searchTerm || typeFilter || recurringFilter) && (
-                        <Button variant={'outline'} size={'icon'} onClick={handleClearFilters} title='Clear Filters'>
-                            <X className='h-4 w-5' />
-                        </Button>
-                    )}
+                        {(searchTerm || typeFilter || recurringFilter) && (
+                            <Button variant={'outline'} size={'icon'} onClick={handleClearFilters} title='Clear Filters'>
+                                <X className='h-4 w-5' />
+                            </Button>
+                        )}
+                    </div>
                 </div>
-
             </div>
 
             {/* Transactions */}
