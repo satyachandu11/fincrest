@@ -75,7 +75,11 @@ const BudgetProgress = ({ initialBudget, currentExpenses }: any) => {
                                     disabled={isLoading}
                                 />
                                 <Button variant={'ghost'} size={'icon'} onClick={handleUpdateBudget} disabled={isLoading}>
-                                    <Check className='h-4 w-4 text-green-500' />
+                                    {isLoading ? (
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                    ) : (
+                                        <Check className='h-4 w-4 text-green-500' />
+                                    )}
                                 </Button>
                                 <Button variant={'ghost'} size={'icon'} onClick={handleCancel} disabled={isLoading}><X className='h-4 w-4 text-red-500' /></Button>
                             </div>
