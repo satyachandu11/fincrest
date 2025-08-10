@@ -46,14 +46,18 @@ export const checkBudgetAlert = inngest.createFunction(
             const endOfMonth = new Date(istDate.getFullYear(), istDate.getMonth() + 1, 0);
             endOfMonth.setHours(23, 59, 59, 999);
 
+            // Convert month boundaries to UTC for database query (since Prisma stores dates in UTC)
+            const startOfMonthUTC = new Date(startOfMonth.getTime() - istOffset);
+            const endOfMonthUTC = new Date(endOfMonth.getTime() - istOffset);
+
             const expenses = await db.transaction.aggregate({
                 where: {
                     userId: budget.userId,
                     accountId: defaultAccount.id,
                     type: "EXPENSE",
                     date: {
-                        gte: startOfMonth,
-                        lte: endOfMonth,
+                        gte: startOfMonthUTC,
+                        lte: endOfMonthUTC,
                     }
                 },
                 _sum: {
