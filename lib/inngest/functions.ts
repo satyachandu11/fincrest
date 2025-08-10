@@ -35,12 +35,15 @@ export const checkBudgetAlert = inngest.createFunction(
         if (!defaultAccount) continue; // Skip if no default account
 
         await step.run(`check-budget-${budget.id}`, async () => {
-            // Use start and end of month in local timezone to match transaction dates
+            // Use explicit IST timezone for consistent month boundaries across all environments
             const now = new Date();
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const istOffset = 5.5 * 60 * 60 * 1000; // IST is UTC+5:30
+            const istDate = new Date(now.getTime() + istOffset);
+            
+            const startOfMonth = new Date(istDate.getFullYear(), istDate.getMonth(), 1);
             startOfMonth.setHours(0, 0, 0, 0);
             
-            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const endOfMonth = new Date(istDate.getFullYear(), istDate.getMonth() + 1, 0);
             endOfMonth.setHours(23, 59, 59, 999);
 
             const expenses = await db.transaction.aggregate({
