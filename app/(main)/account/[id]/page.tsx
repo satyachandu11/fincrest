@@ -1,4 +1,4 @@
-import { getAccountWithTransactions } from '@/actions/accounts'
+import { getAccountWithTransactions, getAllAccountTransactions } from '@/actions/accounts'
 import { notFound } from 'next/navigation';
 import React, { Suspense } from 'react'
 import TransactionTableClient from '../_components/TransactionTableClient'
@@ -15,6 +15,10 @@ const page = async ({ params }: any) => {
   }
 
   const { transactions, ...account } = accountData;
+  
+  // Get all transactions for the chart (not paginated)
+  const allTransactions = await getAllAccountTransactions(id);
+
   return (
     <div className='space-y-8 px-5'>
       <div className='flex gap-4 items-end justify-between'>
@@ -33,7 +37,7 @@ const page = async ({ params }: any) => {
 
       {/* Chart Section */}
       <Suspense fallback={<LoadingFallback />}>
-        <AccountChart transactions={transactions} />
+        <AccountChart transactions={allTransactions} />
       </Suspense>
 
       {/* Transaction Table */}
