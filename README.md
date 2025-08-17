@@ -1,6 +1,6 @@
 💰 FinCrest – Smart AI Budget Tracker 
 
-![FinCrest Banner](./public/logo.png)
+![FinCrest Banner](./public/fincrest-dashboard.png)
 
 **FinCrest** is a **full-stack, AI-powered budget tracking application** that helps users manage accounts, track transactions, and gain **real-time AI-driven financial insights**.  
 
